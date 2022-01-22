@@ -1,5 +1,33 @@
+
 export const si = require('systeminformation');
 export const result=[];
+jest.useFakeTimers();
+Promise.all([
+    // Information sur le CPU
+    si.cpu(function(data) {
+       result.push(data);
+    }),
+    // Information Memo
+    si.mem(function(data) {
+        result.push(data);
+    }),
+    //Information OS
+    si.osInfo(function(data) {
+    result.push(data);
+    }),
+    //currentLoad Information
+    si.currentLoad(function(data) {
+        result.push(data);
+    }),
+    //currentLoad Information
+    si.diskLayout(function(data) {
+    result.push(data);}),
+    //current
+    si.networkInterfaces(function(data) {
+        result.push(data);
+    })]).then((result) =>{
+        console.log(result);
+    });
 
 const http = require('http');
 const requestListener = function (req, res) {
@@ -14,41 +42,9 @@ const requestListener = function (req, res) {
         return res.end('404 Not Found!!');
     }
 }
-export const server = http.createServer(requestListener);
-
-
-([
-    // Information sur le CPU
-    si.cpu(function (data) {
-        result.push(data);
-    }),
-    // Information Memo
-    si.mem(function (data) {
-        result.push(data);
-    }),
-    //Information OS
-    si.osInfo(function (data) {
-        result.push(data);
-    }),
-    //currentLoad Information
-    si.currentLoad(function (data) {
-        result.push(data);
-    }),
-    //currentLoad Information
-    si.diskLayout(function (data) {
-        result.push(data);
-    }),
-    //current
-    si.networkInterfaces(function (data) {
-        result.push(data);
-    })
-])
-beforeAll(done => {
-    done()
-  })
-  
-  afterAll(done => {
-    // Closing the DB connection allows Jest to exit successfully.
-    
-    done()
-  })
+const server = http.createServer(requestListener);
+server.listen(8081);
+afterAll(done => {
+    server.close();
+    done();
+});
