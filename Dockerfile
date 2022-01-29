@@ -1,31 +1,22 @@
-# image de départ
-FROM alpine:3.15 as builder
-RUN apk update && apk add nodejs npm
+ # stage compilation
+ FROM alpine:3.15 as builder
+ 
+ RUN apk update && apk add nodejs npm 
+
  # chemin de travail
-WORKDIR /src
+ WORKDIR /src
 
- # downgrade des privilèges
-# USER node
-
- # 
- # copie des fichiers du dépôt
-COPY package*.json ./
-
-COPY . .
-
+ COPY . .
  # installation des dépendances avec npm
-RUN npm install
+ RUN npm install
 
  # build avec npm
-RUN npm run build
+ RUN npm run build
 
+ # stage exécution
+ FROM alpine:3.15 as runner
+
+ COPY --from=builder . .
+ COPY . .
  # exécution
-CMD ["node", "./dist/infoSystem.js"]
-
-
-
-FROM alpine:3.15 as runner
-RUN apk --no-cache add ca-certificates
-WORKDIR /src
-COPY --from=builder --chown=node:node . ./
-CMD ["node", "./dist/infoSystem.js"]
+ CMD ["node","/src/dist/infoSystem.js"]
